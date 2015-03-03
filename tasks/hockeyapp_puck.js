@@ -24,25 +24,44 @@ module.exports = function(grunt) {
             notes: 'Changelog',
             notify: 2,
             status: 2,
-            tags: ''
+            tags: '',
+			platform: null
         });
 
 		console.log(options);
+
+		var formData = {
+			ipa : fs.createReadStream(__dirname + '/' +options['file']),
+			status:options.status,
+			notify:options.notify,
+			notes:options.notes,
+			notes_type:1
+		};
+
+	
+		var url = 'https://rink.hockeyapp.net/api/2/apps/' + options.app_id + '/app_version/upload';
+
 
         // warn on missing options
 
         var done = this.async();
 
         request.get({
-            url: 'https://rink.hockeyapp.net/api/2/apps',
+            url: url,
+			formData:formData,
             headers: {
                 'X-HockeyAppToken': options['token']
             }
-        }, function(e, r, b) {
-			if(e){
-				grunt.error(e);
+        }, function(error, response, body) {
+	            console.log(body);
+			if(error !== null){
+				grunt.log.error(error);
+				grunt.log.rror('Error uploading "'+options['file']+'"');
+				done(false);
+			}else{
+				grunt.log.ok('Uploaded "'+options['file']+'"');
+				done();
 			}
-            console.log(b);
         });
     });
 
