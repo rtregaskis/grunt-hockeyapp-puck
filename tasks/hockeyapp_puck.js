@@ -1,6 +1,6 @@
 /*
  * grunt-hockeyapp-puck
- * https://github.com/rtregaskis/grunt-hockeyapp-puck
+ * https://github.com/dresources/grunt-hockeyapp-puck.git
  *
  * Copyright (c) 2015 rtregaskis
  * Licensed under the MIT license.
