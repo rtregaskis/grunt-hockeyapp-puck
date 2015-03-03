@@ -32,7 +32,7 @@ module.exports = function(grunt) {
 		console.log(options);
 
 		var formData = {
-			ipa : fs.createReadStream(__dirname + '/' +options['file']),
+			ipa : fs.createReadStream(options['file']),
 			status:options.status,
 			notify:options.notify,
 			notes:options.notes,
