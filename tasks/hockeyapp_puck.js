@@ -42,11 +42,7 @@ module.exports = function(grunt) {
             return grunt.warn(
                 'File option is required!'
             );
-        } else if (!path.existsSync(options['file'])) {
-            return grunt.warn(
-                'File option target does not exist!'
-            );
-		}
+        } 
 
         // construct form data
         // NB: use read stream to access IPA file
