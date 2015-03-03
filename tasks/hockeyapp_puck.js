@@ -27,6 +27,8 @@ module.exports = function(grunt) {
             tags: ''
         });
 
+		console.log(options);
+
         // warn on missing options
 
         var done = this.async();
@@ -37,6 +39,9 @@ module.exports = function(grunt) {
                 'X-HockeyAppToken': options['token']
             }
         }, function(e, r, b) {
+			if(e){
+				grunt.error(e);
+			}
             console.log(b);
         });
     });
