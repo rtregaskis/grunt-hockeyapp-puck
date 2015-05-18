@@ -27,6 +27,7 @@ module.exports = function(grunt) {
             notify: 2,
             status: 2,
             tags: '',
+			teams:null
         });
 
 		// warn and exit on missing options
@@ -51,7 +52,8 @@ module.exports = function(grunt) {
             status: options.status,
             notify: options.notify,
             notes: options.notes,
-            notes_type: 1
+            notes_type: 1,
+			teams: options.teams
         };
 
         // tidy up url
