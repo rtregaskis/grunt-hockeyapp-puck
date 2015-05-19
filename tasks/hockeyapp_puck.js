@@ -80,12 +80,55 @@ module.exports = function(grunt) {
                 grunt.log.error('Error creating "' + options['title'] + '"');
                 done(false);
             } else {
-				grunt.config.set('ha_app_id', body.public_identifier);
+
+				grunt.config('ha_app_id', JSON.parse(body)['public_identifier']);
                 grunt.log.ok('Created new app "' + options['title'] + '" successfully');
                 done();
             }
         });
     });
+
+	grunt.registerMultiTask('hockeyapp_listteams', 'Lists teams of app', function(){
+		var options = this.options({
+			app_id:null
+		});
+
+		// warn and exit on missing options
+        if (!options['app_id'] || options['app_id'] === undefined || options['app_id'] === '') {
+            return grunt.fatal(
+                'app_id option is required!'
+            );
+        } 
+
+        // tidy up url
+        var url = 'https://rink.hockeyapp.net/api/2/apps/'+options.app_id+'/app_teams';
+
+        // run this asynchronously
+        var done = this.async();
+
+        grunt.log.subhead('List teams of app');
+
+        // fire request to server.
+        request.get({
+            url: url,
+            headers: {
+                'X-HockeyAppToken': options['token']
+            }
+        }, function(error, response, body) {
+            if (error !== null) {
+                grunt.log.error(error);
+                grunt.log.error('Error listing team to app!');
+                done(false);
+            } else {
+				body = JSON.parse(body);
+                grunt.log.ok('Added team to app successfully');
+				for (var i = 0; i < body.teams.length; i++){
+					console.log(body.teams[i]['id'], body.teams[i]['name']);
+				}
+                done();
+            }
+        });
+	});
 
 	grunt.registerMultiTask('hockeyapp_addteam', 'Add team to app', function(){
 		var options = this.options({
