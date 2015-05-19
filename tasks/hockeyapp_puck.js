@@ -17,7 +17,7 @@ module.exports = function(grunt) {
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
-    grunt.registerTask('hockeyapp_create', 'Create new app on HockeyApp via grunt', function() {
+    grunt.registerMultiTask('hockeyapp_create', 'Create new app on HockeyApp via grunt', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             token: null,
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 			release_type: '0',
 			custom_release_type: null,
 			icon:null,
-			private: true
+			private: 'true'
         });
 
 		// warn and exit on missing options
@@ -54,6 +54,7 @@ module.exports = function(grunt) {
 			bundle_identifier:options.bundle_identifier,
 			platform:options.platform,
 			release_type:options.release_type,
+			private:options.private
         };
 
         // tidy up url
@@ -87,7 +88,7 @@ module.exports = function(grunt) {
     });
 
 
-    grunt.registerTask('hockeyapp_upload', 'Upload builds to HockeyApp via grunt', function() {
+    grunt.registerMultiTask('hockeyapp_upload', 'Upload builds to HockeyApp via grunt', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             token: null,
