@@ -87,6 +87,49 @@ module.exports = function(grunt) {
         });
     });
 
+	grunt.registerMultiTask('hockeyapp_addteam', 'Add team to app', function(){
+		var options = this.options({
+			app_id:null,
+			team_id:null
+		});
+
+		// warn and exit on missing options
+        if (!options['app_id'] || options['app_id'] === undefined || options['app_id'] === '') {
+            return grunt.fatal(
+                'app_id option is required!'
+            );
+        } 
+        if (!options['team_id'] || options['team_id'] === undefined || options['team_id'] === '') {
+            return grunt.fatal(
+                'team_id option is required!'
+            );
+        } 
+
+        // tidy up url
+        var url = 'https://rink.hockeyapp.net/api/2/apps/'+options.app_id+'/app_teams/'+options.team_id;
+
+        // run this asynchronously
+        var done = this.async();
+
+        grunt.log.subhead('Add app to team');
+
+        // fire request to server.
+        request.put({
+            url: url,
+            headers: {
+                'X-HockeyAppToken': options['token']
+            }
+        }, function(error, response, body) {
+            if (error !== null) {
+                grunt.log.error(error);
+                grunt.log.error('Error adding team to app!');
+                done(false);
+            } else {
+                grunt.log.ok('Added team to app successfully');
+                done();
+            }
+        });
+	});
 
     grunt.registerMultiTask('hockeyapp_upload', 'Upload builds to HockeyApp via grunt', function() {
         // Merge task-specific and/or target-specific options with these defaults.
