@@ -17,7 +17,77 @@ module.exports = function(grunt) {
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
-    grunt.registerMultiTask('hockeyapp_puck', 'Upload builds to HockeyApp via grunt', function() {
+    grunt.registerTask('hockeyapp_create', 'Create new app on HockeyApp via grunt', function() {
+        // Merge task-specific and/or target-specific options with these defaults.
+        var options = this.options({
+            token: null,
+			title: null,
+			bundle_identifier: null,
+			platform: 'iOS', //Android, Mac OS, Windows Phone, Custom
+			release_type: '0',
+			custom_release_type: null,
+			icon:null,
+			private: true
+        });
+
+		// warn and exit on missing options
+        if (!options['token'] || options['token'] === undefined || options['token'] === '') {
+            return grunt.fatal(
+                'token option is required!'
+            );
+        } 
+        if (!options['title'] || options['title'] === undefined || options['title'] === '') {
+            return grunt.fatal(
+                'title option is required!'
+            );
+        } 
+        if (!options['bundle_identifier'] || options['bundle_identifier'] === undefined || options['bundle_identifier'] === '') {
+            return grunt.fatal(
+                'bundle_identifier option is required!'
+            );
+        } 
+
+        // construct form data
+        // NB: use read stream to access IPA file
+        var formData = {
+			title:options.title,
+			bundle_identifier:options.bundle_identifier,
+			platform:options.platform,
+			release_type:options.release_type,
+        };
+
+        // tidy up url
+        var url = 'https://rink.hockeyapp.net/api/2/apps/new';
+
+        // run this asynchronously
+        var done = this.async();
+
+        grunt.log.subhead('Creating a new app instance for '+options.title);
+		console.log(options);
+		console.log(formData);
+
+        // fire request to server.
+        request.post({
+            url: url,
+            formData: formData,
+            headers: {
+                'X-HockeyAppToken': options['token']
+            }
+        }, function(error, response, body) {
+            if (error !== null) {
+                grunt.log.error(error);
+                grunt.log.error('Error creating "' + options['title'] + '"');
+                done(false);
+            } else {
+				grunt.config.set('ha_app_id', body.public_identifier);
+                grunt.log.ok('Created new app "' + options['title'] + '" successfully');
+                done();
+            }
+        });
+    });
+
+
+    grunt.registerTask('hockeyapp_upload', 'Upload builds to HockeyApp via grunt', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             token: null,
@@ -32,15 +102,15 @@ module.exports = function(grunt) {
 
 		// warn and exit on missing options
         if (!options['token'] || options['token'] === undefined || options['token'] === '') {
-            return grunt.warn(
+            return grunt.fatal(
                 'Token option is required!'
             );
         } else if (!options['app_id'] || options['app_id'] === undefined || options['app_id'] === '') {
-            return grunt.warn(
+            return grunt.fatal(
                 'Application id option is required!'
             );
         } else if (!options['file'] || options['file'] === undefined || options['file'] === '') {
-            return grunt.warn(
+            return grunt.fatal(
                 'File option is required!'
             );
         } 
