@@ -1,7 +1,7 @@
 {
   "name": "grunt-hockeyapp-puck",
   "description": "Interface to HockeyApp for grunt",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "homepage": "https://github.com/rtregaskis/grunt-hockeyapp-puck",
   "author": {
     "name": "rtregaskis",
