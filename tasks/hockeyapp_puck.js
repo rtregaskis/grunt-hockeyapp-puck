@@ -181,6 +181,7 @@ module.exports = function(grunt) {
             app_id: null,
             file: null,
             notes: 'Changelog',
+			notes_type:1,
             notify: 2,
             status: 2,
             tags: '',
@@ -209,7 +210,7 @@ module.exports = function(grunt) {
             status: options.status,
             notify: options.notify,
             notes: options.notes,
-            notes_type: 1,
+            notes_type: options.notes_type,
 			teams: options.teams
         };
 
