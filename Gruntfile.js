@@ -28,7 +28,16 @@ module.exports = function(grunt) {
     },
 
     // Configuration to be run (and then tested).
-    hockeyapp_upload: {
+    puck_team_list: {
+      default_options: {
+        options: {
+			token:"4567abcd8901ef234567abcd8901ef23",
+			app_id:"1234567890abcdef1234567890abcdef"
+        }
+      },
+    },
+
+    puck_app_list: {
       default_options: {
         options: {
 			token:"4567abcd8901ef234567abcd8901ef23"
@@ -53,7 +62,7 @@ module.exports = function(grunt) {
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'hockeyapp_upload', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'puck_app_list', 'nodeunit']);
 
   // By default, lint and run all tests.
   grunt.registerTask('default', ['jshint', 'test']);
