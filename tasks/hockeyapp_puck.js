@@ -5,8 +5,6 @@
  * Copyright (c) 2015 rtregaskis
  * Licensed under the MIT license.
  */
-
-
 var request = require('request'),
     fs = require('fs'),
 	path = require('path');
@@ -17,7 +15,8 @@ module.exports = function(grunt) {
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
-    grunt.registerMultiTask('hockeyapp_create', 'Create new app on HockeyApp via grunt', function() {
+	// API: apps - http://support.hockeyapp.net/kb/api/api-apps
+    grunt.registerMultiTask('puck_app_new', 'Create new app without uploading files', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             token: null,
@@ -79,14 +78,59 @@ module.exports = function(grunt) {
                 done(false);
             } else {
 
-				grunt.config('ha_app_id', JSON.parse(body)['public_identifier']);
+				grunt.config('puck_app_id', JSON.parse(body)['public_identifier']);
                 grunt.log.ok('Created new app "' + options['title'] + '" successfully');
                 done();
             }
         });
     });
 
-	grunt.registerMultiTask('hockeyapp_listteams', 'Lists teams of app', function(){
+    grunt.registerMultiTask('puck_app_list', 'List all apps for the logged user.', function() {
+        // Merge task-specific and/or target-specific options with these defaults.
+        var options = this.options({
+            token: null,
+        });
+
+		// warn and exit on missing options
+        if (!options['token'] || options['token'] === undefined || options['token'] === '') {
+            return grunt.fatal(
+                'token option is required!'
+            );
+        } 
+
+        // tidy up url
+        var url = 'https://rink.hockeyapp.net/api/2/apps';
+
+        // run this asynchronously
+        var done = this.async();
+
+        grunt.log.subhead('Listing apps');
+
+        // fire request to server.
+        request.get({
+            url: url,
+            headers: {
+                'X-HockeyAppToken': options['token']
+            }
+        }, function(error, response, body) {
+            if (error !== null) {
+                grunt.log.error(error);
+                grunt.log.error('Error listing apps!');
+                done(false);
+            } else {
+				body = JSON.parse(body);
+				console.log(body);
+				grunt.config('puck_apps', body.apps);
+				for (var i = 0; i < body.apps.length; i++){
+					console.log(body.apps[i]['title']);
+				}
+                done();
+            }
+        });
+    });
+
+	// API: Teams - http://support.hockeyapp.net/kb/api/api-teams-app-user
+	grunt.registerMultiTask('puck_team_list', 'Lists teams of app', function(){
 		var options = this.options({
             token: null,
 			app_id:null
@@ -120,16 +164,17 @@ module.exports = function(grunt) {
                 done(false);
             } else {
 				body = JSON.parse(body);
-                grunt.log.ok('Added team to app successfully');
-				//for (var i = 0; i < body.teams.length; i++){
-				//	console.log(body.teams[i]['id'], body.teams[i]['name']);
-				//}
+                grunt.log.ok('Teams linked to this app:');
+				grunt.config('puck_teams', body.teams);
+				for (var i = 0; i < body.teams.length; i++){
+					console.log(body.teams[i]['id'], body.teams[i]['name']);
+				}
                 done();
             }
         });
 	});
 
-	grunt.registerMultiTask('hockeyapp_addteam', 'Add team to app', function(){
+	grunt.registerMultiTask('puck_team_add', 'Add team to app', function(){
 		var options = this.options({
 			app_id:null,
 			team_id:null
@@ -178,18 +223,25 @@ module.exports = function(grunt) {
         });
 	});
 
-    grunt.registerMultiTask('hockeyapp_upload', 'Upload builds to HockeyApp via grunt', function() {
+	// API: Versions - http://support.hockeyapp.net/kb/api/api-versions
+    grunt.registerMultiTask('puck_version_upload', 'Upload Version', function() {
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
             token: null,
             app_id: null,
-            file: null,
+            ipa: null,
+            dsym: null,
             notes: 'Changelog',
 			notes_type:1,
             notify: 2,
             status: 2,
             tags: '',
-			teams:null
+			teams:null,
+			users:null,
+			mandatory:0,
+			commit_sha:null,
+			build_server_url:null,
+			repository_url:null
         });
 
 		// warn and exit on missing options
@@ -201,16 +253,17 @@ module.exports = function(grunt) {
             return grunt.fatal(
                 'Application id option is required!'
             );
-        } else if (!options['file'] || options['file'] === undefined || options['file'] === '') {
+        } else if (!options['ipa'] || options['ipa'] === undefined || options['ipa'] === '') {
             return grunt.fatal(
-                'File option is required!'
+                'IPA option is required!'
             );
         } 
 
         // construct form data
         // NB: use read stream to access IPA file
+		// TODO: merge options into formData
         var formData = {
-            ipa: fs.createReadStream(options['file']),
+            ipa: fs.createReadStream(options['ipa']),
             status: options.status,
             notify: options.notify,
             notes: options.notes,
@@ -224,7 +277,7 @@ module.exports = function(grunt) {
         // run this asynchronously
         var done = this.async();
 
-        grunt.log.subhead('Uploading "' + options['file'] + '"');
+        grunt.log.subhead('Uploading "' + options['ipa'] + '"');
 
         // fire request to server.
         request.post({
@@ -236,10 +289,10 @@ module.exports = function(grunt) {
         }, function(error, response, body) {
             if (error !== null) {
                 grunt.log.error(error);
-                grunt.log.error('Error uploading "' + options['file'] + '"');
+                grunt.log.error('Error uploading "' + options['ipa'] + '"');
                 done(false);
             } else {
-                grunt.log.ok('Uploaded "' + options['file'] + '" successfully');
+                grunt.log.ok('Uploaded "' + options['ipa'] + '" successfully');
                 done();
             }
         });
