@@ -64,8 +64,6 @@ module.exports = function(grunt) {
         var done = this.async();
 
         grunt.log.subhead('Creating a new app instance for '+options.title);
-		console.log(options);
-		console.log(formData);
 
         // fire request to server.
         request.post({
@@ -90,6 +88,7 @@ module.exports = function(grunt) {
 
 	grunt.registerMultiTask('hockeyapp_listteams', 'Lists teams of app', function(){
 		var options = this.options({
+            token: null,
 			app_id:null
 		});
 
@@ -122,9 +121,9 @@ module.exports = function(grunt) {
             } else {
 				body = JSON.parse(body);
                 grunt.log.ok('Added team to app successfully');
-				for (var i = 0; i < body.teams.length; i++){
-					console.log(body.teams[i]['id'], body.teams[i]['name']);
-				}
+				//for (var i = 0; i < body.teams.length; i++){
+				//	console.log(body.teams[i]['id'], body.teams[i]['name']);
+				//}
                 done();
             }
         });
@@ -137,6 +136,11 @@ module.exports = function(grunt) {
 		});
 
 		// warn and exit on missing options
+        if (!options['token'] || options['token'] === undefined || options['token'] === '') {
+            return grunt.fatal(
+                'token option is required!'
+            );
+        } 
         if (!options['app_id'] || options['app_id'] === undefined || options['app_id'] === '') {
             return grunt.fatal(
                 'app_id option is required!'
